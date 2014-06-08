@@ -11,7 +11,7 @@ import java.util.Enumeration;
  */
 public class TodoEnumeration implements Enumeration<Todo> {
 
-    private String sql = "SELECT * FROM items";
+    private static final String SELECT_FROM_ITEMS = "SELECT * FROM items";
 
     private boolean isCalled = false;
 
@@ -19,9 +19,9 @@ public class TodoEnumeration implements Enumeration<Todo> {
     private PreparedStatement ps;
     private ResultSet rs;
 
-    public TodoEnumeration(Connection connection) {
+    public TodoEnumeration(final Connection connection) {
         try {
-            ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(SELECT_FROM_ITEMS);
         } catch (SQLException e) {
             e.printStackTrace();
         }

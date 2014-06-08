@@ -9,22 +9,22 @@ import java.util.function.Consumer;
  */
 public class TodoIterable implements Iterable<Todo> {
 
-    Enumeration<Todo> todoEnumeration;
+    private final Enumeration<Todo> enumeration;
 
-    public TodoIterable(Enumeration<Todo> todoEnumeration) {
-        this.todoEnumeration = todoEnumeration;
+    public TodoIterable(final Enumeration<Todo> enumeration) {
+        this.enumeration = enumeration;
     }
 
     private class TodoIterator implements Iterator<Todo> {
 
         @Override
         public boolean hasNext() {
-            return todoEnumeration.hasMoreElements();
+            return enumeration.hasMoreElements();
         }
 
         @Override
         public Todo next() {
-            return todoEnumeration.nextElement();
+            return enumeration.nextElement();
         }
 
         @Override
@@ -34,7 +34,8 @@ public class TodoIterable implements Iterable<Todo> {
 
         @Override
         public void forEachRemaining(Consumer<? super Todo> action) {
-            // Need to read about this
+            while (enumeration.hasMoreElements())
+                action.accept(enumeration.nextElement());
         }
     }
 

@@ -11,13 +11,9 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Hello world!
@@ -47,73 +43,9 @@ public class App {
             /** JDBC **/
 
             try (Connection connection = sqlSession.getConnection()) {
-                String sql = "SELECT * FROM items";
-                PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery();
 
-                Enumeration<Todo> todoEnumeration = new Enumeration<Todo>() {
-
-                    private int columnIndex = 1;
-
-                    @Override
-                    public boolean hasMoreElements() {
-                        boolean hasMoreElements = false;
-                        try {
-                            hasMoreElements = rs.next();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        return hasMoreElements;
-                    }
-
-                    @Override
-                    public Todo nextElement() {
-                        Todo todo = new Todo();
-                        try {
-                            todo.setId((java.util.UUID) rs.getObject(columnIndex++));
-                            todo.setName(rs.getString(columnIndex++));
-                            todo.setDescription(rs.getString(columnIndex++));
-                            todo.setChecked(rs.getBoolean(columnIndex++));
-                            todo.setDateCreated(rs.getTimestamp(columnIndex++));
-                            columnIndex = 1;
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        return todo;
-                    }
-                };
-
-                Iterable<Todo> todoIterable = new Iterable<Todo>() {
-                    class TodoIterator implements Iterator<Todo> {
-
-                        Enumeration<Todo> enumeration = todoEnumeration;
-
-                        @Override
-                        public boolean hasNext() {
-                            return enumeration.hasMoreElements();
-                        }
-
-                        @Override
-                        public Todo next() {
-                            return enumeration.nextElement();
-                        }
-
-                        @Override
-                        public void remove() {
-                            // No
-                        }
-
-                        @Override
-                        public void forEachRemaining(Consumer<? super Todo> action) {
-                            // Need to read about this
-                        }
-                    }
-
-                    @Override
-                    public Iterator<Todo> iterator() {
-                        return new TodoIterator();
-                    }
-                };
+                Enumeration<Todo> todoEnumeration = new TodoEnumeration(connection);
+                Iterable<Todo> todoIterable = new TodoIterable(todoEnumeration);
 
                 todoIterable.forEach(System.out::println);
 

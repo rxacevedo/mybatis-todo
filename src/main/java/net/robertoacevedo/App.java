@@ -2,7 +2,7 @@ package net.robertoacevedo;
 
 import net.robertoacevedo.domain.Todo;
 import net.robertoacevedo.domain.TodoEnumeration;
-import net.robertoacevedo.domain.TodoIterable;
+import net.robertoacevedo.domain.TodoMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -12,12 +12,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Hello world!
- */
 public class App {
 
     public static void main(String[] args) {
@@ -45,9 +45,11 @@ public class App {
             try (Connection connection = sqlSession.getConnection()) {
 
                 Enumeration<Todo> todoEnumeration = new TodoEnumeration(connection);
-                Iterable<Todo> todoIterable = new TodoIterable(todoEnumeration);
 
-                todoIterable.forEach(System.out::println);
+                List<Todo> todoList = Collections.list(todoEnumeration);
+                List<String> todoNames = todoList.stream().map(Todo::getName).collect(Collectors.toCollection(ArrayList::new));
+
+                todoNames.forEach(System.out::println);
 
             } catch (SQLException e) {
                 e.printStackTrace();

@@ -1,4 +1,4 @@
-package net.robertoacevedo;
+package net.robertoacevedo.domain;
 
 import net.robertoacevedo.domain.Todo;
 import org.apache.ibatis.annotations.Param;

@@ -12,18 +12,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 public class App {
 
+    private static final String resource = "mybatis-config.xml";
+
     public static void main(String[] args) {
-
-        /** MyBatis - not handling some types well **/
-
-        String resource = "mybatis-config.xml";
 
         try (InputStream configStream = Resources.getResourceAsStream(resource)) {
 
@@ -48,6 +45,22 @@ public class App {
                 );
 
                 runnables.forEach(Runnable::run);
+
+                System.out.println();
+
+                Callable<List<String>> getNames = () -> {
+                    List<String> todoNames = Collections.list(new TodoEnumeration(connection))
+                            .stream()
+                            .map(Todo::getName)
+                            .collect(Collectors.toCollection(ArrayList::new));
+                    return todoNames;
+                };
+
+                try {
+                    getNames.call().forEach(System.out::println);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } catch (SQLException e) {
                 e.printStackTrace();

@@ -5,11 +5,20 @@
 
 <mapper namespace="net.robertoacevedo.domain.TodoMapper">
 
-    <select id="selectTodo" parameterType="java.util.UUID" resultType="net.robertoacevedo.domain.Todo">
+    <resultMap id="todoResultMap" type="net.robertoacevedo.domain.Todo">
+        <result property="id" column="id" javaType="java.util.UUID"
+                typeHandler="net.robertoacevedo.typehandler.UuidTypeHandler"/>
+        <result property="name" column="name" javaType="java.lang.String"/>
+        <result property="description" column="description" javaType="java.lang.String"/>
+        <result property="checked" column="checked" javaType="boolean" jdbcType="BOOLEAN"/>
+        <result property="dateCreated" column="date_created" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selectTodo" parameterType="java.util.UUID" resultMap="todoResultMap">
         select * from items where id = #{id}
     </select>
 
-    <select id="selectAllTodos" resultType="net.robertoacevedo.domain.Todo">
+    <select id="selectAllTodos" resultMap="todoResultMap">
         select * from items;
     </select>
 

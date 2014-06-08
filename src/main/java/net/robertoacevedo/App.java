@@ -12,11 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class App {
 
@@ -28,28 +27,27 @@ public class App {
 
         try (InputStream configStream = Resources.getResourceAsStream(resource)) {
 
+            /* Not AutoCloseable */
             SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configStream);
             SqlSession sqlSession = sqlSessionFactory.openSession();
 
-
-            TodoMapper todoMapper = sqlSession.getMapper(TodoMapper.class);
-            List<Todo> mybatisTodos = todoMapper.selectAllTodos();
-
-            // System.out.println(mybatisTodo);
-            mybatisTodos.forEach(System.out::println);
-
-            System.out.println();
-
-            /** JDBC **/
-
             try (Connection connection = sqlSession.getConnection()) {
 
-                Enumeration<Todo> todoEnumeration = new TodoEnumeration(connection);
+                List<Runnable> runnables = Arrays.asList(
+                        () -> {
+                            TodoMapper mapper = sqlSession.getMapper(TodoMapper.class);
+                            List<Todo> mybatisTodoList = mapper.selectAllTodos();
+                            mybatisTodoList.forEach(System.out::println);
+                        },
+                        (Runnable) System.out::println,
+                        () -> {
+                            Enumeration<Todo> enumeration = new TodoEnumeration(connection);
+                            List<Todo> todoList = Collections.list(enumeration);
+                            todoList.forEach(System.out::println);
+                        }
+                );
 
-                List<Todo> todoList = Collections.list(todoEnumeration);
-                List<String> todoNames = todoList.stream().map(Todo::getName).collect(Collectors.toCollection(ArrayList::new));
-
-                todoNames.forEach(System.out::println);
+                runnables.forEach(Runnable::run);
 
             } catch (SQLException e) {
                 e.printStackTrace();

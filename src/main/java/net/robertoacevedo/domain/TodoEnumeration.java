@@ -16,12 +16,10 @@ public class TodoEnumeration implements Enumeration<Todo> {
     private boolean isCalled = false;
 
     private int columnIndex = 1;
-    private Connection connection;
     private PreparedStatement ps;
     private ResultSet rs;
 
     public TodoEnumeration(Connection connection) {
-        this.connection = connection;
         try {
             ps = connection.prepareStatement(sql);
         } catch (SQLException e) {
